@@ -1,6 +1,6 @@
 # EventHub
 
-Application de gestion d’événements, de participants et d’inscriptions. Le frontend React/Vite existant est connecté au backend Express/PostgreSQL dans `../eventhub-backend/`.
+Application de gestion d’événements, de participants et d’inscriptions. Le frontend React/Vite est connecté au backend Express/PostgreSQL dans `../eventhub-backend/`.
 
 **Installation complète, base de données, comptes, endpoints, transactions et tests réels : [../eventhub-backend/README.md](../eventhub-backend/README.md).** Le guide ci-dessous décrit le frontend et son mode offline.
 
@@ -11,7 +11,7 @@ Exécuter les commandes de ce guide depuis `eventhub-frontend/`.
 Prérequis : Node.js 22.12+ ou 24 et npm.
 
 ```sh
-npm install
+npm ci
 cp .env.example .env
 npm run dev
 ```
@@ -49,7 +49,8 @@ src/
 │   ├── dashboardApi.js
 │   ├── eventsApi.js
 │   ├── participantsApi.js
-│   └── registrationsApi.js
+│   ├── registrationsApi.js
+│   └── usersApi.js
 ├── components/
 │   ├── common/
 │   │   ├── Button.jsx, Input.jsx, Select.jsx
@@ -59,14 +60,15 @@ src/
 │   ├── events/EventTable.jsx
 │   ├── layout/AppLayout.jsx, Navbar.jsx, Sidebar.jsx
 │   ├── participants/ParticipantForm.jsx
-│   └── registrations/RegistrationTable.jsx
+│   ├── registrations/RegistrationTable.jsx
+│   └── users/UserForm.jsx
 ├── context/AuthContext.jsx
 ├── hooks/useAuth.js, useDebounce.js, useResource.js
 ├── mocks/data.js, server.js
 ├── pages/
 │   ├── LoginPage.jsx, DashboardPage.jsx
 │   ├── EventsPage.jsx, EventDetailsPage.jsx, EventFormPage.jsx
-│   ├── ParticipantsPage.jsx
+│   ├── ParticipantsPage.jsx, UsersPage.jsx
 │   ├── RegistrationsPage.jsx, NewRegistrationPage.jsx
 │   └── NotFoundPage.jsx, UnauthorizedPage.jsx
 ├── routes/AppRoutes.jsx, ProtectedRoute.jsx
@@ -74,7 +76,8 @@ src/
 └── App.jsx, main.jsx, index.css
 tests/
 ├── validation.test.js
-└── browser/workflows.spec.js
+├── browser/workflows.spec.js
+└── live/ (API réelle, administration, Swagger)
 ```
 
 ## Dépendances
@@ -88,7 +91,9 @@ Développement : Vite, plugin React de Vite, Playwright et Prettier. `package-lo
 | Route                          | Fonction                                                 |
 | ------------------------------ | -------------------------------------------------------- |
 | `/login`                       | Connexion                                                |
-| `/`, `/dashboard`              | Tableau de bord (`/` redirige)                           |
+| `/`, `/public/events`          | Catalogue public des événements à venir                  |
+| `/public/events/:id`           | Détail public et formulaire d’inscription sans compte    |
+| `/dashboard`                  | Tableau de bord de l’équipe                              |
 | `/events`                      | Liste, recherche, filtres statut/date, publication       |
 | `/events/new`                  | Création en brouillon                                    |
 | `/events/:id`                  | Détails, capacité, inscriptions                          |
@@ -99,7 +104,9 @@ Développement : Vite, plugin React de Vite, Playwright et Prettier. `package-lo
 | `/unauthorized`                | Accès interdit                                           |
 | `/*`                           | Page introuvable                                         |
 
-Toutes les routes sauf `/login` exigent une session. Les pages métier acceptent ADMIN et STAFF (rôles insensibles à la casse). La page `/users` (« Operators ») est réservée aux admins : recherche, création, modification, activation et désactivation des comptes internes.
+Le catalogue, les détails publics et `/login` sont accessibles sans session. Les pages de gestion exigent ADMIN ou STAFF (rôles insensibles à la casse). La page `/users` (« Operators ») est réservée aux admins : recherche, création, modification, activation et désactivation des comptes internes.
+
+Le portail public utilise l’API réelle, même si les mocks de l’espace organisateur sont activés. Il affiche les places restantes et permet une inscription en attente sans création de compte. Les réponses publiques ne contiennent aucune liste ni coordonnée des participants.
 
 La page Participants propose une suppression avec confirmation. L’API refuse la suppression si une inscription existe, même annulée. En mode offline, les fiches opérateurs sont simulées sans stocker leurs mots de passe ; seule la connexion de démonstration est disponible. Utiliser l’API réelle pour tester la connexion des nouveaux comptes.
 
@@ -145,8 +152,4 @@ Les mocks restent dans `src/mocks/`, sont chargés uniquement en mode démonstra
 
 ## Déploiement
 
-Servir `dist/` depuis la racine du domaine et configurer le serveur pour renvoyer `index.html` sur les routes frontend inconnues (fallback SPA). `npm run dev` utilise le serveur Vite ; ouvrir simplement le dossier dans WAMP n’exécute pas l’application. L’API devra autoriser l’origine du frontend via CORS. Les variables `VITE_*` sont publiques et intégrées au build : ne jamais y mettre de secret.
-
-## Périmètre
-
-La première livraison frontend est conservée. La seconde ajoute le backend Express/PostgreSQL, le schéma, le seed, les transactions et les tests d’intégration réels. Les détails et les adaptations limitées du frontend sont documentés dans [../eventhub-backend/README.md](../eventhub-backend/README.md).
+Servir `dist/` depuis la racine du domaine et configurer le serveur pour renvoyer `index.html` sur les routes frontend inconnues (fallback SPA). `npm run dev` utilise le serveur Vite. L’API devra autoriser l’origine du frontend via CORS. Les variables `VITE_*` sont publiques et intégrées au build : ne jamais y mettre de secret.

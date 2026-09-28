@@ -15,6 +15,7 @@ import registrationRoutes from "./routes/registrationRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import docsRoutes from "./routes/docsRoutes.js";
+import publicRoutes from "./routes/publicRoutes.js";
 import AppError from "./utils/AppError.js";
 export const app = express();
 app.disable("x-powered-by");
@@ -39,6 +40,7 @@ app.get("/api/health", async (req, res) => {
 });
 app.use("/api/auth", authRoutes);
 app.use("/api", docsRoutes);
+app.use("/api/public", publicRoutes);
 app.use("/api", authenticate, authorizeRoles("admin", "staff"));
 app.use("/api/events", eventRoutes);
 app.use("/api/participants", participantRoutes);

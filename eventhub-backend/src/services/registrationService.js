@@ -21,32 +21,29 @@ async function requireSpace(event, db) {
     );
 }
 export const create = ({ eventId, participantId }) =>
-  transaction(async (db) => {
-    // All capacity-changing operations lock the event first, on this same connection.
-    const event = await lockEvent(eventId, db);
-    if (!(await participants.findById(participantId, db, true)))
-      throw new AppError(
-        404,
-        "PARTICIPANT_NOT_FOUND",
-        "The participant was not found.",
-      );
-    requirePublished(event);
-    const existing = await registrations.findExisting(
-      eventId,
-      participantId,
-      db,
+  transaction((db) => createWithConnection({ eventId, participantId }, db));
+export const createWithConnection = async ({ eventId, participantId }, db) => {
+  // All capacity-changing operations lock the event first, on this same connection.
+  const event = await lockEvent(eventId, db);
+  if (!(await participants.findById(participantId, db, true)))
+    throw new AppError(
+      404,
+      "PARTICIPANT_NOT_FOUND",
+      "The participant was not found.",
     );
-    if (existing && existing.status !== "cancelled")
-      throw new AppError(
-        409,
-        "ALREADY_REGISTERED",
-        "This participant is already registered for this event.",
-      );
-    await requireSpace(event, db);
-    return existing
-      ? registrations.updateStatus(existing.id, "pending", db)
-      : registrations.create(eventId, participantId, db);
-  });
+  requirePublished(event);
+  const existing = await registrations.findExisting(eventId, participantId, db);
+  if (existing && existing.status !== "cancelled")
+    throw new AppError(
+      409,
+      "ALREADY_REGISTERED",
+      "This participant is already registered for this event.",
+    );
+  await requireSpace(event, db);
+  return existing
+    ? registrations.updateStatus(existing.id, "pending", db)
+    : registrations.create(eventId, participantId, db);
+};
 export const updateStatus = (id, status) =>
   transaction(async (db) => {
     const initial = await registrations.findById(id, db);

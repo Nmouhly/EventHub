@@ -1,6 +1,8 @@
 # Explorer l’API EventHub
 
-Swagger UI est inclus dans le backend et documente les 20 opérations de l’API.
+Swagger UI est inclus dans le backend et documente les 23 opérations de l’API.
+
+Les trois opérations `/public/events` permettent de consulter le catalogue, lire un événement et envoyer une inscription sans JWT. Les routes de gestion restent protégées. L’inscription publique reçoit nom, email et téléphone facultatif ; elle retourne uniquement un statut `pending` et un message de confirmation.
 
 | Mode | Interface |
 | --- | --- |

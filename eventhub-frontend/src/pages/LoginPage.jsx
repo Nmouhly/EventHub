@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
-import { CalendarDays, ArrowRight, Sparkles } from 'lucide-react';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { CalendarDays, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import useAuth from '../hooks/useAuth';
 import Input from '../components/common/Input';
 import Button from '../components/common/Button';
 import Loader from '../components/common/Loader';
 import { DEMO } from '../utils/constants';
 import { errorMessage } from '../api/axios';
+import './LoginPage.css';
 export default function LoginPage() {
   const auth = useAuth();
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   async function submit(e) {
     e.preventDefault();
     setBusy(true);
@@ -39,50 +41,53 @@ export default function LoginPage() {
           eventhub.
         </div>
         <div>
-          <span className="eyebrow">LESS ADMIN. MORE CONNECTION.</span>
+          <span className="eyebrow">YOUR EVENTS. ONE WORKSPACE.</span>
           <h1>
-            Bring people
+            Plan better.
             <br />
-            together.
+            Bring people together.
             <br />
-            <em>Beautifully.</em>
+            Make it memorable.
           </h1>
           <p>
-            One thoughtful workspace for your events,
-            <br />
-            your people, and everything in between.
+            From the first invitation to the final guest list, manage your events,
+            participants and registrations in one place.
           </p>
-          <div className="story-orbit">
-            <Sparkles size={55} />
-            <span>Experiences worth showing up for.</span>
-          </div>
+          <span className="login-story-line" aria-hidden="true" />
         </div>
-        <small>YOUR NEXT GREAT EVENT STARTS HERE</small>
+        <small>EVENTHUB — EVERY DETAIL. EVERY GUEST.</small>
       </section>
       <section className="login-form">
         <div>
-          <span className="eyebrow">EVENT MANAGEMENT PLATFORM</span>
-          <h1>Welcome back.</h1>
-          <p>Sign in to your EventHub workspace.</p>
+          <span className="eyebrow">YOUR EVENT WORKSPACE</span>
+          <h1>Welcome back!</h1>
+          <p>Sign in to plan your next event and keep every registration in view.</p>
           <form onSubmit={submit}>
             <Input
               label="Email address"
               type="email"
               autoComplete="username"
-              placeholder="you@company.com"
+              placeholder="name@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
+            <div className="login-password">
             <Input
               label="Password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               autoComplete="current-password"
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+            <button className="login-password-toggle" type="button"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+              aria-pressed={showPassword} onClick={() => setShowPassword(!showPassword)}>
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+            </div>
             {error && (
               <p className="alert" role="alert">
                 {error}
@@ -107,7 +112,8 @@ export default function LoginPage() {
               </button>
             </div>
           )}
-          <small className="login-footnote">A workspace for meaningful experiences.</small>
+          <small className="login-footnote">Need access? Contact your EventHub administrator.</small>
+          <Link className="login-public-link" to="/">Browse events — no account needed →</Link>
         </div>
       </section>
     </div>

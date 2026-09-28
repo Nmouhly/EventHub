@@ -25,4 +25,12 @@ assert.ok(stats.totalEvents >= 5, 'Seed events are present');
 const page = await get('/events');
 assert.equal(page.status, 200, 'React Router refresh fallback');
 assert.match(await page.text(), /<div id="root"><\/div>/);
-console.log('Docker checks passed: Nginx, API, PostgreSQL, JWT, dashboard and SPA fallback.');
+const catalogue = await get('/api/public/events');
+assert.equal(catalogue.status, 200, 'Public catalogue without JWT');
+const publicEvents = await catalogue.json();
+assert.ok(Array.isArray(publicEvents.data));
+for (const event of publicEvents.data) {
+  assert.equal(event.createdBy, undefined, 'No organizer identity in public responses');
+  assert.equal(event.participants, undefined, 'No participant list in public responses');
+}
+console.log('Docker checks passed: Nginx, API, PostgreSQL, JWT, dashboard, public catalogue and SPA fallback.');

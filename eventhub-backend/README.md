@@ -1,10 +1,10 @@
 # EventHub — API Express/PostgreSQL
 
-Backend JavaScript pour le frontend React existant. L’intégration utilise une vraie base PostgreSQL, `pg`, JWT, bcrypt, Zod, CORS et Helmet. Les opérateurs internes (`users`) et les personnes inscrites (`participants`) sont deux domaines distincts.
+API de gestion des événements, participants et inscriptions avec PostgreSQL, `pg`, JWT, bcrypt, Zod, CORS et Helmet. Les opérateurs internes (`users`) et les personnes inscrites (`participants`) sont deux domaines distincts.
 
 ## Installation sur une nouvelle machine
 
-Prérequis : Node.js 22.12+ (ou 24), npm, PostgreSQL avec les extensions `pg_trgm` et `pgcrypto`. Une version PostgreSQL maintenue est préférable pour une nouvelle installation. Le SQL est compatible avec PostgreSQL 12+, version disponible et utilisée pour les vérifications locales ; `pgcrypto` fournit `gen_random_uuid()` sur PostgreSQL 12, fonction native à partir de 13.
+Prérequis : Node.js 22.12+ (ou 24), npm et PostgreSQL avec les extensions `pg_trgm` et `pgcrypto`. Docker utilise PostgreSQL 17.
 
 Depuis la racine du projet :
 
@@ -61,35 +61,7 @@ VITE_API_URL=http://localhost:5000/api
 VITE_USE_MOCKS=false
 ```
 
-Ouvrir **http://localhost:5173**. L’API répond sur **http://localhost:5000/api** et sa sonde de connexion DB sur `/api/health`. WAMP n’est pas nécessaire pour servir Express ou Vite. Pour la production : `npm run build` dans `eventhub-frontend/`, puis servir son dossier `dist/` avec fallback SPA ; démarrer l’API avec `npm start` dans `eventhub-backend/`.
-
-## Configuration déjà préparée sur ce poste
-
-Une instance PostgreSQL distincte de JasperReports est initialisée dans `C:\wamp64\www\EventHub\.local\postgres-data`, sur **127.0.0.1:55432**. Les bases sont `eventhub`, `eventhub_test` et `eventhub_browser_test`. Le rôle local est `eventhub_owner`. Son mot de passe aléatoire et le secret JWT sont déjà configurés dans `eventhub-backend/.env` ; ne pas écraser ce fichier avec l’exemple.
-
-Les exécutables proviennent de `C:\Jaspersoft\jasperreports-server-9.0.0\postgresql\bin`. La base et le service JasperReports n’ont pas été modifiés. L’instance EventHub n’est pas installée comme service Windows ; après redémarrage, la lancer avec :
-
-```powershell
-& 'C:\Jaspersoft\jasperreports-server-9.0.0\postgresql\bin\pg_ctl.exe' -D 'C:\wamp64\www\EventHub\.local\postgres-data' -l 'C:\wamp64\www\EventHub\.local\postgres.log' -o '-h 127.0.0.1 -p 55432' -w start
-```
-
-Puis, dans deux terminaux :
-
-```powershell
-cd C:\wamp64\www\EventHub\eventhub-backend
-npm.cmd run dev
-```
-
-```powershell
-cd C:\wamp64\www\EventHub\eventhub-frontend
-npm.cmd run dev -- --port 5173 --strictPort
-```
-
-Arrêter cette seule instance PostgreSQL, si nécessaire :
-
-```powershell
-& 'C:\Jaspersoft\jasperreports-server-9.0.0\postgresql\bin\pg_ctl.exe' -D 'C:\wamp64\www\EventHub\.local\postgres-data' -m fast -w stop
-```
+Ouvrir **http://localhost:5173**. L’API répond sur **http://localhost:5000/api** et sa sonde de connexion DB sur `/api/health`. Pour la production : `npm run build` dans `eventhub-frontend/`, puis servir son dossier `dist/` avec fallback SPA ; démarrer l’API avec `npm start` dans `eventhub-backend/`.
 
 ## Comptes et données de démonstration
 
@@ -106,7 +78,7 @@ Seed : 2 opérateurs, 5 événements (draft/published/cancelled), 10 participant
 eventhub-backend/
 ├── src/
 │   ├── config/          env.js, database.js
-│   ├── routes/          auth, event, participant, registration, dashboard
+│   ├── routes/          auth, events, participants, registrations, dashboard, users, docs
 │   ├── controllers/     lecture des entrées validées et réponses HTTP
 │   ├── services/        règles métier, transactions et orchestration
 │   ├── repositories/    requêtes SQL paramétrées et mapping camelCase
@@ -118,7 +90,7 @@ eventhub-backend/
 ├── database/            schema.sql, seed.sql
 ├── scripts/             database.js, browser-fixture.js
 ├── tests/               unit/, integration/, env.js
-├── docs/                frontend-contract.md
+├── docs/                verification.md
 ├── .env.example
 ├── package.json
 ├── package-lock.json
@@ -180,7 +152,17 @@ Les quatre tables ont un trigger `BEFORE UPDATE` appelant `set_updated_at()` ; c
 
 ## Contrat HTTP
 
-Authentification Bearer obligatoire sur les domaines métier. Admin et staff partagent actuellement les droits. Le middleware `authorizeRoles(...)` permet de restreindre de futurs endpoints. Le rôle et `is_active` sont relus en DB à chaque requête ; un token émis avant désactivation ne donne plus accès.
+### Portail public
+
+`GET /api/public/events?search=&page=&limit=` et `GET /api/public/events/:id` exposent uniquement les événements publiés à venir : titre, description, lieu, date, capacité et places disponibles. Aucun créateur ni participant n’est retourné.
+
+`POST /api/public/events/:id/registrations` reçoit `{ fullName, email, phone? }`, sans JWT. Sous verrou événement, une transaction crée ou retrouve le participant par email puis réutilise le service d’inscription. Une erreur de capacité annule aussi la création du participant. Une fiche existante n’est jamais modifiée. La réponse 201 contient uniquement `{ status: "pending", message }`.
+
+Les coordonnées sont déclaratives, sans vérification email ni envoi de message. Le staff confirme les demandes. Limite : 30 requêtes par IP en 15 minutes ; derrière le proxy Docker, ce quota est partagé tant que le proxy de confiance n’est pas configuré. Les événements passés ne sont pas ouverts à l’inscription publique.
+
+### Gestion interne
+
+Authentification Bearer obligatoire sur les domaines métier. Admin et staff gèrent les événements, participants et inscriptions. La gestion des opérateurs (`/api/users`) est réservée aux admins. Le rôle et `is_active` sont relus en DB à chaque requête ; un token émis avant désactivation ne donne plus accès.
 
 | Méthode | Endpoint                        | Entrée                                                    |
 | ------- | ------------------------------- | --------------------------------------------------------- |
@@ -254,7 +236,7 @@ Recherche participants sur `full_name` ou email avec `ILIKE`, recherche événem
 
 Codes métier : `EVENT_NOT_FOUND`, `PARTICIPANT_NOT_FOUND`, `REGISTRATION_NOT_FOUND`, `EVENT_NOT_PUBLISHED`, `EVENT_FULL`, `ALREADY_REGISTERED`, `INVALID_EVENT_STATUS_TRANSITION`, `INVALID_REGISTRATION_STATUS_TRANSITION`, `MAX_PARTICIPANTS_TOO_LOW`, `EMAIL_ALREADY_EXISTS`, `PARTICIPANT_HAS_REGISTRATIONS`. Codes génériques : `VALIDATION_ERROR`, `UNAUTHORIZED`, `FORBIDDEN`, `NOT_FOUND`, `INTERNAL_ERROR`.
 
-Les erreurs PostgreSQL 23505/23503/23514 sont converties en erreurs métier/validation ; aucune stack ou erreur SQL technique n’est envoyée au client. Les logs HTTP contiennent méthode, statut et durée, sans corps ni token. Helmet, limite JSON 100 Ko, validation stricte et CORS autorise le frontend configuré et les appels de même origine (Swagger). Aucun cookie ni `credentials` n’est nécessaire. JWT HS256 avec expiration, issuer et audience vérifiés. La déconnexion frontend efface son token ; il n’existe pas de liste de révocation ni de refresh token.
+Les erreurs PostgreSQL 23505/23503/23514 sont converties en erreurs métier/validation ; aucune stack ou erreur SQL technique n’est envoyée au client. Les logs HTTP contiennent méthode, statut et durée, sans corps ni token. Helmet, une limite JSON de 100 Ko et une validation stricte protègent les requêtes. CORS autorise le frontend configuré et les appels de même origine (Swagger). Aucun cookie ni `credentials` n’est nécessaire. JWT HS256 avec expiration, issuer et audience vérifiés. La déconnexion frontend efface son token ; il n’existe pas de liste de révocation ni de refresh token.
 
 ## Tests et vérifications
 
@@ -281,19 +263,13 @@ Playwright utilise Edge par défaut. Pour Chromium, installer `npx playwright in
 
 Les tests couvrent : authentification/compte inactif/JWT, propriété créée côté serveur, transitions, inscriptions/doublons/capacité/réactivation, annulation, réduction de capacité, concurrence pour la dernière place et concurrence annulation/inscription, recherche littérale, pagination, CORS, erreurs JSON, suppression protégée et bornes timezone du dashboard. Les parcours navigateur vérifient le cycle complet et le rôle staff sur mobile. Captures : `artifacts/live-dashboard-desktop.png` et `artifacts/live-dashboard-mobile.png`.
 
-Si 5174 est occupé, définir `$env:PLAYWRIGHT_MOCK_PORT='5176'` avant `npm.cmd run test:e2e`. Résultats exécutés et fichiers modifiés : [docs/verification.md](docs/verification.md).
+Si 5174 est occupé, définir `$env:PLAYWRIGHT_MOCK_PORT='5176'` avant `npm.cmd run test:e2e`. Résultats de validation : [docs/verification.md](docs/verification.md).
 
-## Adaptations frontend limitées
+## Documentation et limites
 
-- `src/api/axios.js` : lecture des codes d’erreur imbriqués et chargement des pages pour les sélecteurs, sans changement des signatures des services.
-- Services events/participants/registrations : recours au helper de collection. Les pages existantes continuent à lire leurs contrats d’origine.
-- Formulaire/validation événement : description optionnelle, conformément au modèle nullable.
-- Détails événement : bouton d’annulation avec confirmation et rafraîchissement des inscriptions.
-- Tableau inscriptions : annulation des pending et réactivation lorsque l’événement est publié.
-- Mock isolé : annulation en cascade et réactivation alignées sur le comportement métier pour conserver la démo offline. Il n’a pas servi à déclarer l’intégration réussie.
-- `.env` frontend : API réelle, mocks désactivés. Le layout, les routes, AuthContext et les composants de base sont conservés.
+[Docker Compose](../DOCKER.md) décrit le démarrage des trois services. [Swagger](../SWAGGER.md) documente les opérations sur `/api/docs/`, avec la spécification sur `/api/openapi.json`.
 
-Le contrat relevé avant modification est conservé dans [docs/frontend-contract.md](docs/frontend-contract.md). Aucun ORM, Redis, microservice ni modèle supplémentaire n’a été ajouté. Docker Compose est documenté dans [DOCKER.md](../DOCKER.md). Swagger est disponible sur `/api/docs/` et `/api/openapi.json` : voir [SWAGGER.md](../SWAGGER.md). Les sélecteurs chargent toutes les pages : pour de très grands volumes, une recherche serveur à la saisie sera préférable.
+Les sélecteurs chargent toutes les pages ; une recherche serveur serait préférable pour de grands volumes.
 
 ## Gestion des opérateurs et suppression des participants
 
@@ -309,4 +285,4 @@ Les résultats contiennent id/fullName/email/role/isActive/createdAt, jamais le 
 
 Une désactivation bloque les nouvelles connexions et les requêtes avec un JWT déjà émis. Un admin ne peut pas désactiver son propre compte ni retirer son propre rôle admin (`SELF_ACCESS_CHANGE`). Les écritures administratives sont sérialisées par un verrou de table users dans une transaction ; l’identité et les droits de l’admin sont revérifiés après acquisition du verrou. Au moins un administrateur actif doit rester. Ce verrou empêche notamment deux admins de se désactiver simultanément. Les opérations courantes ne prennent pas ce verrou administratif.
 
-La suppression d’un participant est désormais accessible dans l’interface, avec confirmation et message `PARTICIPANT_HAS_REGISTRATIONS` si le backend refuse. Les tests API couvrent les restrictions staff, les mots de passe hachés, les comptes désactivés et la concurrence administrative. Les tests navigateur réels couvrent création/édition/désactivation/réactivation d’opérateur, accès staff interdit, suppression réussie d’un participant libre et refus pour un participant inscrit.
+La suppression d’un participant est accessible dans l’interface, avec confirmation et message `PARTICIPANT_HAS_REGISTRATIONS` si le backend refuse. Les tests API couvrent les restrictions staff, les mots de passe hachés, les comptes désactivés et la concurrence administrative. Les tests navigateur réels couvrent création/édition/désactivation/réactivation d’opérateur, accès staff interdit, suppression réussie d’un participant libre et refus pour un participant inscrit.

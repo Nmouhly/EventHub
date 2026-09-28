@@ -15,9 +15,6 @@ export default function AppLayout() {
         <main id="main">
           <Outlet />
         </main>
-        <footer>
-          © {new Date().getFullYear()} EventHub<span>A little planning. A lasting impression.</span>
-        </footer>
       </div>
     </div>
   );

@@ -5,7 +5,6 @@ import {
   Users,
   Ticket,
   LogOut,
-  ArrowUpRight,
   X,
 } from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
@@ -53,14 +52,6 @@ export default function Sidebar({ open, onClose }) {
             ))}
         </nav>
         <div className="sidebar-bottom">
-          <div className="sidebar-note">
-            <span className="note-icon">✧</span>
-            <h3>Make every event count.</h3>
-            <p>Great experiences start with a little organisation.</p>
-            <Link to="/events/new" onClick={onClose}>
-              Create an event <ArrowUpRight size={16} />
-            </Link>
-          </div>
           <div className="user-profile">
             <span className="avatar">
               {(user?.name || user?.email || 'U').slice(0, 2).toUpperCase()}

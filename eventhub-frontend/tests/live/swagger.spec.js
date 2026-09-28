@@ -4,7 +4,7 @@ test('Swagger allows login and an authenticated API request', async ({ page }) =
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
   await page.goto('http://localhost:5001/api/docs/');
-  await expect(page.locator('.opblock')).toHaveCount(20);
+  await expect(page.locator('.opblock')).toHaveCount(23);
   const login = page.locator('#operations-Auth-login');
   await login.locator('.opblock-summary').click();
   await login.getByRole('button', { name: 'Try it out' }).click();

@@ -16,6 +16,9 @@ const eventFields = {title:fullName,description:nullable({type:'string',maxLengt
 const participantFields = {fullName,email,phone:nullable({type:'string',maxLength:40})};
 const userFields = {fullName,email,role,isActive:{type:'boolean'}};
 const schemas = {
+  PublicEvent:object({id:uuid,...eventFields,availablePlaces:integer}),
+  PublicEventList:object({data:{type:'array',items:ref('PublicEvent')},total:integer,pagination:ref('Pagination')}),
+  PublicRegistrationResult:object({status:{type:'string',enum:['pending']},message:str}),
   Profile:object(profile),
   Login:input({email,password:{type:'string',minLength:1,maxLength:200,writeOnly:true,description:'Maximum 72 octets UTF-8.'}},['email','password']),
   LoginResult:object({token:{type:'string',description:'JWT à copier dans Authorize, sans préfixe Bearer.'},user:ref('Profile')}),
@@ -62,6 +65,9 @@ export const openapi = {
   tags:[{name:'Health'},{name:'Auth'},{name:'Events'},{name:'Participants'},{name:'Registrations'},{name:'Dashboard'},{name:'Users',description:'Admin uniquement. Comptes internes, sans suppression définitive.'}],
   components:{securitySchemes:{bearerAuth:{type:'http',scheme:'bearer',bearerFormat:'JWT'}},schemas},
   paths:{
+    '/public/events':{get:operation('Public','publicEvents','Découvrir les événements publiés à venir','PublicEventList',{publicRoute:true,parameters:[...paging,search],codes:[400,403,500],description:'Projection publique sans créateur ni données des participants. Les événements complets restent visibles.'})},
+    '/public/events/{id}':{get:operation('Public','publicEvent','Consulter un événement public','PublicEvent',{publicRoute:true,parameters:[id],codes:[400,403,404,500]})},
+    '/public/events/{id}/registrations':{post:{...operation('Public','publicRegister','Inscription sans compte','PublicRegistrationResult',{publicRoute:true,status:201,parameters:[id],requestBody:body('ParticipantInput'),codes:[400,403,404,409,413,500],description:'Coordonnées déclaratives, sans vérification email. Réutilise la fiche par email sans la modifier. Inscription pending à confirmer par le staff ; pending consomme une place. ALREADY_REGISTERED ou EVENT_FULL. Réactivation de la même inscription annulée. Transaction atomique ; aucune identité ni référence interne retournée.'}),responses:{201:response('Demande reçue',ref('PublicRegistrationResult')),400:errors[400],403:errors[403],404:errors[404],409:errors[409],413:errors[413],429:response('PUBLIC_RATE_LIMIT : 30 demandes / 15 minutes / IP.',ref('Error')),500:errors[500]}}},
     '/health':{get:{tags:['Health'],operationId:'health',summary:'Vérifier la connexion PostgreSQL',security:[],responses:{200:response('API et DB accessibles',object({status:{type:'string',enum:['ok']}})),500:errors[500]}}},
     '/auth/login':{post:{...operation('Auth','login','Se connecter','LoginResult',{publicRoute:true,requestBody:body('Login',{email:'admin@eventhub.demo',password:'EventHub2026!'}),codes:[400,401,403,413,500]}),responses:{...operation('Auth','login','Se connecter','LoginResult',{publicRoute:true,codes:[400,401,403,413,500]}).responses,429:response('TOO_MANY_REQUESTS : 50 échecs / 15 minutes / IP.',ref('Error'))}}},
     '/auth/me':{get:operation('Auth','me','Consulter le profil courant','Profile',{codes:[401,403,500]})},

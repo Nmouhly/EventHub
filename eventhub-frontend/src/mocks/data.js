@@ -6,7 +6,7 @@ export function seedData() {
     d.setHours(hour, 0, 0, 0);
     return d.toISOString();
   };
-  const user = { id: 'u1', name: 'Alex Morgan', email: 'admin@eventhub.demo', role: 'ADMIN' };
+  const user = { id: 'u1', name: 'Nouhaila Mouhly', email: 'admin@eventhub.demo', role: 'ADMIN' };
   const specs = [
     [
       'Design Forward 2026',
@@ -71,15 +71,15 @@ export function seedData() {
   const names = [
     'Sofia Bennani',
     'Adam El Amrani',
-    'Lina Martin',
+    'Lina El Fassi',
     'Omar Idrissi',
-    'Emma Laurent',
+    'Salma El Mansouri',
     'Youssef Alami',
-    'Nora Dupont',
+    'Nora Alaoui',
     'Amine Berrada',
-    'Sarah Wilson',
+    'Sara Benjelloun',
     'Mehdi Tazi',
-    'Jade Moreau',
+    'Hiba Amrani',
     'Rayan Mansouri',
   ];
   const participants = names.map((fullName, i) => ({

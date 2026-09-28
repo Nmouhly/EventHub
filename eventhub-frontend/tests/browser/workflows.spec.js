@@ -4,7 +4,7 @@ async function login(page) {
   await expect(page).toHaveURL(/login/);
   await page.getByRole('button', { name: 'Use demo credentials' }).click();
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
-  await expect(page.getByRole('heading', { name: /Welcome back, Alex/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Welcome back, Nouhaila/ })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Popular events' })).toBeVisible();
 }
 test('event, participant and registration lifecycle', async ({ page }) => {

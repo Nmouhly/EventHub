@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
 import AppLayout from '../components/layout/AppLayout';
 import LoginPage from '../pages/LoginPage';
@@ -12,9 +12,13 @@ import NewRegistrationPage from '../pages/NewRegistrationPage';
 import NotFoundPage from '../pages/NotFoundPage';
 import UnauthorizedPage from '../pages/UnauthorizedPage';
 import UsersPage from '../pages/UsersPage';
+import PublicEventsPage from '../pages/PublicEventsPage';
 export default function AppRoutes() {
   return (
     <Routes>
+      <Route path="/" element={<PublicEventsPage />} />
+      <Route path="/public/events" element={<PublicEventsPage />} />
+      <Route path="/public/events/:id" element={<PublicEventsPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
@@ -23,7 +27,6 @@ export default function AppRoutes() {
             <Route path="/users" element={<UsersPage />} />
           </Route>
           <Route element={<ProtectedRoute roles={['ADMIN', 'STAFF']} />}>
-            <Route index element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/events" element={<EventsPage />} />
             <Route path="/events/new" element={<EventFormPage />} />

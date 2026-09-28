@@ -6,9 +6,9 @@ import { pool } from '../../src/config/database.js';
 
 afterAll(() => pool.end());
 
-test('OpenAPI validates and documents the 20 API operations', async () => {
+test('OpenAPI validates and documents the 23 API operations', async () => {
   await SwaggerParser.validate(structuredClone(openapi));
-  expect(Object.values(openapi.paths).flatMap(Object.keys)).toHaveLength(20);
+  expect(Object.values(openapi.paths).flatMap(Object.keys)).toHaveLength(23);
   expect(openapi.security).toEqual([{bearerAuth:[]}]);
   expect(openapi.paths['/auth/login'].post.security).toEqual([]);
 });

@@ -6,7 +6,7 @@ Cette configuration lance trois services : React compilé servi par Nginx, API E
 
 ## 1. Préparer Docker
 
-Démarrer Docker Desktop en mode conteneurs Linux. Depuis `C:\wamp64\www\EventHub`, vérifier :
+Prérequis : Node.js 22.12+ pour générer la configuration, Docker Engine avec Compose, ou Docker Desktop en mode conteneurs Linux. Démarrer Docker. Depuis la racine du projet, vérifier :
 
 ```powershell
 docker version

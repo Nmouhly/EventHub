@@ -12,7 +12,7 @@ test('real API: login, dashboard, event lifecycle, participant and atomic cancel
   await page.getByLabel('Email address').fill('admin@eventhub.demo');
   await page.getByLabel('Password', { exact: true }).fill('EventHub2026!');
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
-  await expect(page.getByRole('heading', { name: /Welcome back, Alex/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Welcome back, Nouhaila/ })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Popular events' })).toBeVisible();
   const token = await page.evaluate(() => sessionStorage.getItem('eventhub.session'));
   expect(token.split('.')).toHaveLength(3);
@@ -81,7 +81,7 @@ test('staff can sign in on mobile using real credentials', async ({ page }) => {
   await page.getByLabel('Email address').fill('staff@eventhub.demo');
   await page.getByLabel('Password', { exact: true }).fill('EventHub2026!');
   await page.getByRole('button', { name: 'Sign in', exact: true }).click();
-  await expect(page.getByRole('heading', { name: /Welcome back, Sam/ })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Welcome back, Yassine/ })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Popular events' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: 'artifacts/live-dashboard-mobile.png', fullPage: true });
