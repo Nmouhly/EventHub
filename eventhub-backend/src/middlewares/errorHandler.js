@@ -16,9 +16,11 @@ export function errorHandler(error, req, res, next) {
             "This email address is already in use.",
           );
   } else if (error.code === "23503") {
+    // Map by constraint name so this middleware stays agnostic of HTTP routes.
+    // "registrations_participant_id_fkey" fires when a participant that still
+    // has registrations is deleted (ON DELETE RESTRICT on registrations.participant_id).
     safe =
-      req.method === "DELETE" &&
-      req.originalUrl.startsWith("/api/participants/")
+      error.constraint === "registrations_participant_id_fkey"
         ? new AppError(
             409,
             "PARTICIPANT_HAS_REGISTRATIONS",
