@@ -1,0 +1,62 @@
+name: eventhub
+
+services:
+  postgres:
+    image: postgres:17-bookworm
+    environment:
+      POSTGRES_DB: eventhub
+      POSTGRES_USER: eventhub_owner
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Generate the root .env first}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-55433}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./eventhub-backend/database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U eventhub_owner -d eventhub"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    restart: unless-stopped
+
+  backend:
+    build: ./eventhub-backend
+    environment:
+      NODE_ENV: production
+      PORT: "5000"
+      DATABASE_URL: postgresql://eventhub_owner:${POSTGRES_PASSWORD:?Generate the root .env first}@postgres:5432/eventhub
+      JWT_SECRET: ${JWT_SECRET:?Generate the root .env first}
+      JWT_EXPIRES_IN: 8h
+      FRONTEND_URL: http://localhost:${FRONTEND_PORT:-18080}
+      APP_TIMEZONE: Africa/Casablanca
+    ports:
+      - "127.0.0.1:${BACKEND_PORT:-5002}:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:5000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+    init: true
+    restart: unless-stopped
+
+  frontend:
+    build: ./eventhub-frontend
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-18080}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

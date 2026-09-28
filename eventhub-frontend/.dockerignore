@@ -1,0 +1,11 @@
+node_modules
+dist
+.env
+.env.*
+tests
+test-results
+playwright-report
+artifacts
+playwright*.js
+README.md
+*.log
