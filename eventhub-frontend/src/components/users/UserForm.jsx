@@ -5,6 +5,7 @@ import Select from '../common/Select';
 import Button from '../common/Button';
 import { createUser, updateUser } from '../../api/usersApi';
 import { errorMessage } from '../../api/axios';
+import { validateUser } from '../../utils/validation';
 import useAuth from '../../hooks/useAuth';
 export default function UserForm({ operator, onClose, onSaved }) {
   const { user } = useAuth();
@@ -15,15 +16,20 @@ export default function UserForm({ operator, onClose, onSaved }) {
     isActive: operator.isActive ?? true,
     password: '',
   });
+  const [errors, setErrors] = useState({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const self = operator.id === user.id;
   const bind = (name) => ({
     value: values[name],
+    error: errors[name],
     onChange: (e) => setValues({ ...values, [name]: e.target.value }),
   });
   async function submit(e) {
     e.preventDefault();
+    const validation = validateUser(values, !operator.id);
+    setErrors(validation);
+    if (Object.keys(validation).length) return;
     setBusy(true);
     setError('');
     try {

@@ -15,3 +15,12 @@ export function validateParticipant(values) {
     errors.email = 'Enter a valid email address.';
   return errors;
 }
+export function validateUser(values, isNew) {
+  const errors = {};
+  if (!values.fullName?.trim()) errors.fullName = 'Full name is required.';
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email || ''))
+    errors.email = 'Enter a valid email address.';
+  if (isNew && (!values.password || values.password.length < 12))
+    errors.password = 'Password must be at least 12 characters.';
+  return errors;
+}

@@ -6,7 +6,7 @@ export function seedData() {
     d.setHours(hour, 0, 0, 0);
     return d.toISOString();
   };
-  const user = { id: 'u1', name: 'Nouhaila Mouhly', email: 'admin@eventhub.demo', role: 'ADMIN' };
+  const user = { id: 'u1', name: 'Nouhaila Mouhly', email: 'admin@eventhub.demo', role: 'admin' };
   const specs = [
     [
       'Design Forward 2026',
