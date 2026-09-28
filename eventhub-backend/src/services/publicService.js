@@ -1,4 +1,5 @@
 import * as repository from "../repositories/publicRepository.js";
+import * as eventRepository from "../repositories/eventRepository.js";
 import { transaction } from "../config/database.js";
 import { createWithConnection } from "./registrationService.js";
 import AppError from "../utils/AppError.js";
@@ -16,12 +17,9 @@ export async function get(id) {
 }
 export const register = (eventId, data) =>
   transaction(async (db) => {
-    const {
-      rows: [event],
-    } = await db.query(
-      "SELECT status,event_date FROM events WHERE id=$1 FOR UPDATE",
-      [eventId],
-    );
+    // Lock the event row for the duration of the transaction to prevent
+    // concurrent capacity changes, reusing the shared repository method.
+    const event = await eventRepository.lockById(eventId, db);
     if (
       !event ||
       event.status !== "published" ||

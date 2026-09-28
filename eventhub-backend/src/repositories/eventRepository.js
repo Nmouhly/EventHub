@@ -12,7 +12,7 @@ export const findById = async (id, db = pool) =>
 export const lockById = async (id, db) =>
   (
     await db.query(
-      "SELECT id, status, max_participants FROM events WHERE id=$1 FOR UPDATE",
+      "SELECT id, status, max_participants, event_date FROM events WHERE id=$1 FOR UPDATE",
       [id],
     )
   ).rows[0];
