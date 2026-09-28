@@ -2,7 +2,7 @@
 
 Swagger est inclus dans le backend : http://localhost:18080/api/docs/ (proxy) ou http://localhost:5002/api/docs/ (direct). Voir le [guide Swagger](SWAGGER.md) pour tester l’authentification et les opérations métier.
 
-Cette configuration lance trois services : React compilé servi par Nginx, API Express et PostgreSQL 17. Elle crée une base distincte de PostgreSQL local : aucune donnée locale n’est déplacée ou importée.
+Cette configuration lance trois services : React compilé servi par Nginx, API Express et PostgreSQL 17. La base Docker peut aussi servir au développement local pour partager les mêmes événements et inscriptions.
 
 ## 1. Préparer Docker
 
@@ -54,7 +54,19 @@ Vérification automatique en lecture seule après le seed : `node scripts/check-
 - API via Nginx : http://localhost:18080/api/health
 - DBeaver : hôte `127.0.0.1`, port `55433`, base `eventhub`, utilisateur `eventhub_owner`, mot de passe `POSTGRES_PASSWORD` du `.env` racine.
 
-Le frontend appelle `/api` sur sa propre origine. Nginx transmet les requêtes au service `backend:5000`. L’API utilise `postgres:5432` dans le réseau Docker, pas `localhost`. Les ports différents permettent de garder les serveurs locaux 5173/5000/55432.
+Le frontend appelle `/api` sur sa propre origine. Nginx transmet les requêtes au service `backend:5000`. L’API utilise `postgres:5432` dans le réseau Docker, pas `localhost`.
+
+## Partager la base avec le développement local
+
+Après démarrage et initialisation de Docker, installer les dépendances backend puis exécuter depuis la racine :
+
+```powershell
+node eventhub-backend/scripts/use-docker-database.js
+```
+
+Le script vérifie la connexion puis configure uniquement `DATABASE_URL` dans `eventhub-backend/.env` avec les identifiants du `.env` racine. Il sauvegarde l’ancienne configuration dans `.local/` (ignoré par Git). Redémarrer ensuite le backend local (`npm.cmd run dev`). Le frontend Vite conserve son API `http://localhost:5000/api`.
+
+Ainsi, Vite sur 5173 et Docker sur 18080 utilisent la même base `eventhub`, exposée sur 55433. Docker doit rester démarré. Les bases de test restent séparées pour éviter que les tests effacent les inscriptions de l’application. Aucune ancienne base n’est supprimée ou fusionnée par ce script. Ne pas réexécuter le seed sur une base déjà remplie.
 
 ## Arrêt, redémarrage et diagnostic
 

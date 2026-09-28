@@ -27,6 +27,8 @@ Exécuter le seed uniquement sur une base vide. Les données sont conservées da
 
 Le [guide Docker](DOCKER.md) détaille les ports, les variables, l’arrêt et le redémarrage. Pour travailler sans Docker, suivre l’[installation backend](eventhub-backend/README.md#installation-sur-une-nouvelle-machine) et le [guide frontend](eventhub-frontend/README.md).
 
+Pour développer avec Vite tout en conservant les données de Docker, utiliser la [base commune](DOCKER.md#partager-la-base-avec-le-développement-local). Les espaces public et organisateur partagent alors les mêmes inscriptions, quel que soit le frontend utilisé.
+
 ## Comptes de démonstration
 
 | Rôle | Email | Mot de passe |
