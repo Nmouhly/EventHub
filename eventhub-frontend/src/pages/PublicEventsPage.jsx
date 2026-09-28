@@ -1,16 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { CalendarDays, MapPin, ArrowRight, CheckCircle2 } from 'lucide-react';
-import axios from 'axios';
+import { publicApi } from '../api/publicApi';
 import Input from '../components/common/Input';
 import Button from '../components/common/Button';
 import { errorMessage } from '../api/axios';
 import './PublicEventsPage.css';
-
-const publicApi = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
-  timeout: 15000,
-});
 const dateLabel = (value) =>
   new Date(value).toLocaleString('fr-FR', { dateStyle: 'long', timeStyle: 'short' });
 const emptyForm = { fullName: '', email: '', phone: '' };
