@@ -312,12 +312,23 @@ Voir [SWAGGER.md](SWAGGER.md) pour le guide complet.
 
 ---
 
+## Database Design
+
+![EventHub ERD](docs/erd.svg)
+
+Le modèle de données repose sur 4 tables : `users`, `events`, `participants`, `registrations`.
+Relations, contraintes (PK/FK/UNIQUE/CHECK) et index sont détaillés dans [docs/erd.md](docs/erd.md).
+Source PlantUML : [docs/erd.puml](docs/erd.puml).
+
+---
+
 ## Documentation
 
 | Document | Contenu |
 |---|---|
 | [docs/architecture.md](docs/architecture.md) | Schéma d'architecture, couches, flux auth |
-| [docs/erd.md](docs/erd.md) | ERD, tables, contraintes, index |
+| [docs/erd.md](docs/erd.md) | ERD détaillé — tables, contraintes, index |
+| [docs/erd.svg](docs/erd.svg) | ERD visuel (PlantUML) |
 | [eventhub-backend/README.md](eventhub-backend/README.md) | API complète, règles métier, contrat HTTP |
 | [eventhub-frontend/README.md](eventhub-frontend/README.md) | Frontend, routes, mode démo |
 | [DOCKER.md](DOCKER.md) | Docker Compose, ports, variables, débogage |
