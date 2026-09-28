@@ -36,9 +36,12 @@ export function AuthProvider({ children }) {
       const result = await signIn(credentials);
       if (!result.token) throw new Error('Missing token');
       sessionStorage.setItem(SESSION_KEY, result.token);
-      const profile = await getMe();
+      // Use the user object returned by signIn when available (production API
+      // always returns { token, user }). Fall back to getMe() for environments
+      // that only return { token } (e.g. the offline demo mock).
+      const userData = result.user ?? (await getMe());
       setToken(result.token);
-      setUser(profile.user || profile);
+      setUser(userData.user ?? userData);
     } catch (error) {
       logout();
       throw error;
