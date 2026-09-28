@@ -314,7 +314,7 @@ Voir [SWAGGER.md](SWAGGER.md) pour le guide complet.
 
 ## Database Design
 
-![EventHub ERD](docs/erd.svg)
+![EventHub ERD](docs/erd.png)
 
 Le modèle de données repose sur 4 tables : `users`, `events`, `participants`, `registrations`.
 Relations, contraintes (PK/FK/UNIQUE/CHECK) et index sont détaillés dans [docs/erd.md](docs/erd.md).
