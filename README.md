@@ -8,42 +8,39 @@ Elle permet à une équipe interne de créer et publier des événements, gérer
 
 ## Démonstration
 
+### Connexion à l’espace organisateur
+
+![Écran de connexion EventHub](docs/screenshots/login.png)
+
 ### Tableau de bord organisateur (Overview)
 
 ![Tableau de bord avec les statistiques, les taux de remplissage et les prochains événements](docs/screenshots/dashboard.png)
+
+### Création d’un événement
+
+![Formulaire de création d’un événement](docs/screenshots/create-event.png)
+
+### Événement en brouillon
+
+![Fiche en brouillon avec le bouton de publication](docs/screenshots/draft-event.png)
+
+### Événement publié
+
+![Fiche publiée avant l’ajout des inscriptions](docs/screenshots/published-event.png)
+
+Après publication, les visiteurs peuvent s'inscrire eux-mêmes et les organisateurs peuvent aussi ajouter un participant depuis leur espace.
 
 ### Formulaire d'inscription public
 
 ![Inscription sans compte au Morocco Tech Summit 2026](docs/screenshots/public-registration.png)
 
-### Fiche événement — capacité et suivi des inscriptions
-
-![Événement publié avec la capacité et les actions de confirmation ou d’annulation](docs/screenshots/event-registrations.png)
-
 ### Inscription depuis l’espace organisateur
 
 ![Formulaire de sélection de l’événement et du participant](docs/screenshots/new-registration.png)
 
-<details>
-<summary>Voir le parcours de création et de publication</summary>
+### Fiche événement — capacité et suivi des inscriptions
 
-#### Création d’un événement
-
-![Formulaire de création d’un événement](docs/screenshots/create-event.png)
-
-#### Événement en brouillon
-
-![Fiche en brouillon avec le bouton de publication](docs/screenshots/draft-event.png)
-
-#### Événement publié
-
-![Fiche publiée avant l’ajout des inscriptions](docs/screenshots/published-event.png)
-
-</details>
-
-### Connexion à l’espace organisateur
-
-![Écran de connexion EventHub](docs/screenshots/login.png)
+![Événement publié avec la capacité et les actions de confirmation ou d’annulation](docs/screenshots/event-registrations.png)
 
 ---
 
