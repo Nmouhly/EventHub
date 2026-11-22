@@ -8,6 +8,14 @@ Elle permet à une équipe interne de créer et publier des événements, gérer
 
 ## Démonstration
 
+### Tableau de bord organisateur (Overview)
+
+![Tableau de bord avec les statistiques, les taux de remplissage et les prochains événements](docs/screenshots/dashboard.png)
+
+### Formulaire d'inscription public
+
+![Inscription sans compte au Morocco Tech Summit 2026](docs/screenshots/public-registration.png)
+
 ### Fiche événement — capacité et suivi des inscriptions
 
 ![Événement publié avec la capacité et les actions de confirmation ou d’annulation](docs/screenshots/event-registrations.png)
@@ -36,10 +44,6 @@ Elle permet à une équipe interne de créer et publier des événements, gérer
 ### Connexion à l’espace organisateur
 
 ![Écran de connexion EventHub](docs/screenshots/login.png)
-
-### Tableau de bord organisateur (Overview)
-
-### Formulaire d’inscription public
 
 ---
 
