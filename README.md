@@ -6,6 +6,16 @@ Elle permet à une équipe interne de créer et publier des événements, gérer
 
 ---
 
+## Démonstration
+
+### Tableau de bord organisateur (Overview)
+
+### Fiche événement — capacité et suivi des inscriptions
+
+### Formulaire d'inscription public
+
+---
+
 ## Fonctionnalités principales
 
 **Espace organisateur (JWT requis)**
