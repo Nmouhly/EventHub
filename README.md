@@ -8,11 +8,38 @@ Elle permet à une équipe interne de créer et publier des événements, gérer
 
 ## Démonstration
 
-### Tableau de bord organisateur (Overview)
-
 ### Fiche événement — capacité et suivi des inscriptions
 
-### Formulaire d'inscription public
+![Événement publié avec la capacité et les actions de confirmation ou d’annulation](docs/screenshots/event-registrations.png)
+
+### Inscription depuis l’espace organisateur
+
+![Formulaire de sélection de l’événement et du participant](docs/screenshots/new-registration.png)
+
+<details>
+<summary>Voir le parcours de création et de publication</summary>
+
+#### Création d’un événement
+
+![Formulaire de création d’un événement](docs/screenshots/create-event.png)
+
+#### Événement en brouillon
+
+![Fiche en brouillon avec le bouton de publication](docs/screenshots/draft-event.png)
+
+#### Événement publié
+
+![Fiche publiée avant l’ajout des inscriptions](docs/screenshots/published-event.png)
+
+</details>
+
+### Connexion à l’espace organisateur
+
+![Écran de connexion EventHub](docs/screenshots/login.png)
+
+### Tableau de bord organisateur (Overview)
+
+### Formulaire d’inscription public
 
 ---
 
